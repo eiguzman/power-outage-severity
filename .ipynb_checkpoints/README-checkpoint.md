@@ -250,17 +250,26 @@ Since the observations are not normally distributed, it is better to use a non-p
 
 This hypothesis test will use the difference in means as its t-statistic. We will use an alpha value of .01, the result our p-value being based off a 99% confidence interval.
 
-Since there are three categories, we will perform three tests based on each permutation of climate categories.
+Since there are three categories, we will perform three tests based on each permutation of climate categories. The following results are written below:
+>tval, pval of normal vs cold:  (170510.5, 0.20935450193362237)
+>tval, pval of normal vs warm:  (105717.5, 0.023713467761876987)
+>tval, pval of cold vs warm:  (69985.0, 0.35384002311582785)
 
 The results of our hypothesis testing reveal some notable features of our distributions:
 * Each permutation has a p-value greater than .01; using a 99% confidence interval, the test statistic will not be significant.
 * Due to the p-value of .35, the distributions of cold and warm observations of `OUTAGE.DURATION` are likely the closest permutation to come from the same distribution.
 
-Based on the more reliable test, we fail to reject the null hypothesis for all categories. Although this does not mean the null hypothesis is true, it is more likely that the categories come from similar distributions since the null hypothesis was not rejected.
+Based on this reliable test, we fail to reject the null hypothesis for all categories. Although this does not mean the null hypothesis is true, it is more likely that the categories come from similar distributions since the null hypothesis was not rejected.
 
 Since the p-value was greatest between "cold" and "warm" observations, we can assume that there is a greater chance that both observations come from the same distribution. Let's determine if the distributions still hold true when accounting for a secondary variable: If the `CAUSE.CATEGORY` was an intentional attack.
 
-We will also add a new row `total` that gives us the normalized distribution of overall intentional attacks.
+We will also add a new row `total` that gives us the normalized distribution of overall intentional attacks. The `pivot_table` is shown below.
+
+| CLIMATE.CATEGORY   |    False |     True |
+|:-------------------|---------:|---------:|
+| cold               | 0.742072 | 0.257928 |
+| warm               | 0.772727 | 0.227273 |
+| total              | 0.754161 | 0.245839 |
 
 Using the pivot table above, we will run a Chi-squared test for homogeneity.
 
@@ -272,7 +281,7 @@ Our hypothesis test will use the Chi-squared critical value as our test statisti
 
 We observed a test statistic of .945, with a p-value of 0.33. As the p-value was greater than our alpha value, we fail to reject the null hypothesis. Although it is not guaranteed that the distributions of intentional attacks based on climate category come from the same distribution, the p-value is far enough away from the alpha value that there is a highly likely chance that they do.
 
-To obtain a plot showing the distributions of Chi-Squared test statistics, we will implement the following code below:
+To obtain a plot showing the distributions of Chi-Squared test statistics, we generated 500 permutations of the distributions, created new pivot tables, and performed the Chi-squared test for the resulting pvalues. The results are shown below.
 
 <iframe
   src="assets/Hypothesis_1.html"
