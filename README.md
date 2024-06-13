@@ -250,7 +250,7 @@ Since the observations are not normally distributed, it is better to use a non-p
 
 This hypothesis test will use the difference in means as its t-statistic. We will use an alpha value of .01, the result our p-value being based off a 99% confidence interval.
 
-Since there are three categories, we will perform three tests based on each permutation of climate categories. The following results are written below: \
+Since there are three categories, we will perform three tests based on each permutation of climate categories. The following results are written below:
 >tval, pval of normal vs cold:  (170510.5, 0.20935450193362237) \
 >tval, pval of normal vs warm:  (105717.5, 0.023713467761876987) \
 >tval, pval of cold vs warm:  (69985.0, 0.35384002311582785)
@@ -332,7 +332,7 @@ The hyperparameters we have chosen to test are as follow:
 | decisiontreeclassifier__min_samples_split | \[2, 5, 10, 20, 50, 100, 200\] |
 | decisiontreeclassifier__criterion | \['gini', 'entropy'\] |
 
-The most optimal parameters are shown below: \
+The most optimal parameters are shown below:
 >'decisiontreeclassifier__criterion': 'entropy', \
 >'decisiontreeclassifier__max_depth': None, \
 >'decisiontreeclassifier__min_samples_split': 100
