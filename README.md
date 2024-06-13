@@ -250,9 +250,9 @@ Since the observations are not normally distributed, it is better to use a non-p
 
 This hypothesis test will use the difference in means as its t-statistic. We will use an alpha value of .01, the result our p-value being based off a 99% confidence interval.
 
-Since there are three categories, we will perform three tests based on each permutation of climate categories. The following results are written below:
->tval, pval of normal vs cold:  (170510.5, 0.20935450193362237)
->tval, pval of normal vs warm:  (105717.5, 0.023713467761876987)
+Since there are three categories, we will perform three tests based on each permutation of climate categories. The following results are written below: \
+>tval, pval of normal vs cold:  (170510.5, 0.20935450193362237) \
+>tval, pval of normal vs warm:  (105717.5, 0.023713467761876987) \
 >tval, pval of cold vs warm:  (69985.0, 0.35384002311582785)
 
 The results of our hypothesis testing reveal some notable features of our distributions:
@@ -292,7 +292,7 @@ To obtain a plot showing the distributions of Chi-Squared test statistics, we ge
 
 # Framing a Prediction Problem
 
-The model that I will generate will attempt to predict `OVER.1000`. As roughly half of all power outages have an `OUTAGE.DURATION` less than 1000, A model that can predict whether an outage will be severe is a reliable metric to determine model viability.
+The model that I will generate will attempt to predict `OVER.1000`, a variable that categorizes an outage as "severe" if the outage lasts longer than 1000 minutes. As roughly half of all power outages have an `OUTAGE.DURATION` less than 1000, A model that can predict whether an outage will be severe is a reliable metric to determine model viability.
 
 Since there are only two options, 0 or 1, this will be a binary classification. The metric we will be using is the F1 score, as it is important to have both high precision and recall. Our baseline model will use four features:
 
@@ -302,6 +302,8 @@ Since there are only two options, 0 or 1, this will be a binary classification. 
 | ANOMALY.LEVEL | Quantitative |
 | TOTAL.CUSTOMERS | Quantitative |
 | POPDEN_URBAN | Quantitative |
+
+As these are all statistics that we would be able to determine prior or immediately after an outage, these are useful variables to use for initial predictions.
 
 **NOTE**: We will not use `OUTAGE.DURATION` as a predictor. As `OVER.1000` is a transformation of that column, there is a 100% accuracy to predict `OVER.1000` using only `OUTAGE.DURATION`. We are interested in determining accuracy based on other columns.
 
@@ -322,6 +324,19 @@ We will now improve upon our baseline model by adding more features and finding 
 * The proportion of customers affected over the state population
 * The `intensity` (demand loss multiplied by weather anomaly levels)
 
+The hyperparameters we have chosen to test are as follow:
+
+| Hyperparameter | List of values |
+| -------- | ------- |
+| decisiontreeclassifier__max_depth | \[2, 4, 6, 8, 10, 15, 20, None\] |
+| decisiontreeclassifier__min_samples_split | \[2, 5, 10, 20, 50, 100, 200\] |
+| decisiontreeclassifier__criterion | \['gini', 'entropy'\] |
+
+The most optimal parameters are shown below: \
+>'decisiontreeclassifier__criterion': 'entropy', \
+>'decisiontreeclassifier__max_depth': None, \
+>'decisiontreeclassifier__min_samples_split': 100
+
 Next, we will fit our baseline model using the optimal parameters.
 
 Finally, we will predict the values of `OVER.1000`, fit the values into a confusion matrix, and determine the F1-score to analyze our model's true performance.
@@ -334,11 +349,11 @@ For my fairness analysis, I will group by outages whose majority consumer was `I
 
 Why do we not use `IND.CUST.PCT`? This is because `Residential` households are plentiful, but use less energy per household; likewise, `Commercial` and `Industrial` customers are fewer but consume more energy to keep a business running. By looking at the total share of energy usage, we can see who the biggest consumer during an outage was, and who contributes more to longer power outages.
 
-Although these numbers are both below the 50% mark, they do not deviate significantly when compared to one another. As such, we will state that $C$ achieves demographic parity.
+Although these numbers are both below the 50% mark, they do not deviate significantly when compared to one another. As such, we will state that *C* achieves demographic parity.
 
 Based on our test observations, when Industrial customers are not the majority, there is a greater share of power outages that are 1000 minutes or less.
 
-Perhaps if the categories were grouped, we would see numbers that are closer to each other. Let's find the `accuracy` of $C$ for each group.
+Perhaps if the categories were grouped, we would see numbers that are closer to each other. Let's find the `accuracy` of *C* for each group.
 
 After computing the accuracy scores based on the groups, we see a greater difference of `0.11` between the two groups. We will now run a permutation test to determine the significance of our accuracy.
 
@@ -346,6 +361,8 @@ After computing the accuracy scores based on the groups, we see a greater differ
 **Alternative Hypothesis**: The classifier is not the same when `Industry` is the majority consumer. \
 **Test Statistic**: Difference in accuracies based on group. \
 We will run this test under a 99% confidence interval.
+
+Below is a plot of our hypothesis test, in which 500 permutations were run. The plot contains the distribution of the difference in accuracy of majority industrial consumer outages vs non-majority industrial consumer.
 
 <iframe
   src="assets/Fairness_1.html"
