@@ -21,27 +21,40 @@ The dataset we will use throughout this project contains 1536 outage observation
 |OUTAGE.DURATION| Outage duration in minutes | 
 |DEMAND.LOSS.MW| Peak demand lost in Megawatts|
 |CUSTOMERS.AFFECTED| Number of customers affected | 
-|COM.SALES| Commercial consumption (in megawatt-hours) | 
-|TOTAL.SALES| Total consumption (in megawatt-hours) | 
+|COM.SALES| Commercial sector consumption (in megawatt-hours) | 
+|TOTAL.SALES| Total sector consumption (in megawatt-hours) |
+|RES.PERCEN| Percentage of residential consumption compared to total consumption |
+|COM.PERCEN| Percentage of commercial consumption compared to total consumption | 
+|IND.PERCEN| Percentage of industrial consumption compared to total consumption | 
+|TOTAL.CUSTOMERS| Annual number of total customers by state | 
+|POPULATION| Annual population by state |
+|POPDEN_URBAN| Population density of the urban area (persons per square mile) |
 
 # Data Cleaning and Exploratory Data Analysis
 
-Before we can perform our Exploratory Data Analysis, we must first clean our data into a readable and fully usable DataFrame. Each step is explained below. \
-First, we read our Excel file into a DataFrame using `Pandas` built-in function `read_excel`. The first rows are descriptions of the dataset and therefore can be dropped.
+Before we can perform our Exploratory Data Analysis, we must first clean our data into a readable and fully usable DataFrame. Each step is explained below.
+1. First, we read our Excel file into a DataFrame using `Pandas` built-in function `read_excel`. The first rows are descriptions of the dataset and therefore can be dropped.
+2. Next, we want to merge the columns `OUTAGE.XX.DATE` and `OUTAGE.XX.TIME` into a single column. To do this, we must first convert the DATE columns into the dtype `pd.datetime`, and the TIME columns into the dtype `pd.timedelta`. Then, we can perform simple addition to add the DATEs and TIMEs together into their own column. We will name these new columns `OUTAGE.START` and `OUTAGE.RESTORATION`, dropping the unmerged columns in the process.
+3. Next, we will filter out the columns that will not be used in our EDA, Hypothesis tests, or our predictive analysis.
+4. Finally, we will add a final column `OVER.1000`, a Boolean that determines whether the outage lasted longer than 1000 minutes. This column will be interpreted as 0 for `False` and 1 for `True`
 
-Next, we want to merge the columns `OUTAGE.XX.DATE` and `OUTAGE.XX.TIME` into a single column. To do this, we must first convert the DATE columns into the dtype `pd.datetime`, and the TIME columns into the dtype `pd.timedelta`. Then, we can perform simple addition to add the DATEs and TIMEs together into their own column. We will name these new columns `OUTAGE.START` and `OUTAGE.RESTORATION`, dropping the unmerged columns in the process.
+For the purposes of our predictive analysis, we will also fill `NaNs` for all of the selected columns, unless empty values are required for the purposes of missingness assessments. Explanations will be skipped for the sake of keeping this section clean with relevant information. Most `fill` functions are performed using mean imputation based on category.
 
-Next, we will keep only the columns that will be used in our EDA, Hypothesis tests, and our predictive analysis.
+For example: `DEMAND.LOSS.MW` will be imputed later, as its missingness will be analyzed in a section below.
 
-Finally, we will add a final column `OVER.1000`, a Boolean that determines whether the outage lasted longer than 1000 minutes. This column will be interpreted as 0 for `False` and 1 for `True`
+The first rowd of our dataframe are shown below:
 
-For the purposes of our predictive analysis, we will also fill `NaNs` for certain columns here. Explanations will be skipped for the sake of keeping this section clean with relevant information. Most `fill` functions are performed using mean imputation based on category.
-
-We will also impute `DEMAND.LOSS.MW` later, as its missingness will be analyzed in a section below.
+| POSTAL.CODE   |   OBS |   YEAR |   ANOMALY.LEVEL | CLIMATE.CATEGORY   | CAUSE.CATEGORY     |   OUTAGE.DURATION |   DEMAND.LOSS.MW |   CUSTOMERS.AFFECTED |   COM.SALES |   TOTAL.SALES |   RES.PERCEN |   COM.PERCEN |   IND.PERCEN |   TOTAL.CUSTOMERS |   POPULATION |   POPDEN_URBAN |   OVER.1000 |
+|:--------------|------:|-------:|----------------:|:-------------------|:-------------------|------------------:|-----------------:|---------------------:|------------:|--------------:|-------------:|-------------:|-------------:|------------------:|-------------:|---------------:|------------:|
+| MN            |     1 |   2011 |            -0.3 | normal             | severe weather     |              3060 |              nan |                70000 | 2.11477e+06 |   6.56252e+06 |      35.5491 |      32.225  |      32.2024 |           2595696 |      5348119 |           2279 |           1 |
+| MN            |     2 |   2014 |            -0.1 | normal             | intentional attack |                 1 |              nan |               124007 | 1.80776e+06 |   5.28423e+06 |      30.0325 |      34.2104 |      35.7276 |           2640737 |      5457125 |           2279 |           0 |
+| MN            |     3 |   2010 |            -1.5 | cold               | severe weather     |              3000 |              nan |                70000 | 1.80168e+06 |   5.22212e+06 |      28.0977 |      34.501  |      37.366  |           2586905 |      5310903 |           2279 |           1 |
+| MN            |     4 |   2012 |            -0.1 | normal             | severe weather     |              2550 |              nan |                68200 | 1.94117e+06 |   5.78706e+06 |      31.9941 |      33.5433 |      34.4393 |           2606813 |      5380443 |           2279 |           1 |
+| MN            |     5 |   2015 |             1.2 | warm               | severe weather     |              1740 |              250 |               250000 | 2.16161e+06 |   5.97034e+06 |      33.9826 |      36.2059 |      29.7795 |           2673531 |      5489594 |           2279 |           1 |
 
 ### EDA: Univariate Analysis
 
-We will perform univariate analyses on a few of our variables. First, we will determine the distribution of `OUTAGE.DURATION`
+We will perform univariate analyses on a few of our variables. First, we will determine the distribution of `OUTAGE.DURATION` over time.
 
 <iframe
   src="assets/Univariate_1.html"
@@ -128,21 +141,25 @@ This plot is remarkably interesting! Why would the District of Columbia have suc
 * For all states: `RES.CUSTOMERS` > `COM.CUSTOMERS` > `IND.CUSTOMERS`
 * `DC` is the only place to have a disproportionately small number of `IND.CUSTOMERS`, with only one!
     * Additionally, `DC` has the lowest ratio of `RES.CUSTOMERS` to `COM.CUSTOMERS`
-This means that while the most states have many `RES.CUSTOMERS` and few `COM.CUSTOMERS`, The number of residential and commercial customers in `DC` is close.
+This means that while the most states have many `RES.CUSTOMERS` and few `COM.CUSTOMERS`, The number of residential and commercial customers in `DC` is not far apart. All these discoveries verify D.C.'s high commercial percentage.
 
-All these discoveries verify D.C.'s high commercial percentage.
-
-To add a bit of domain knowledge: `DC` contains the most data centers out of any region in the United States. California is the second region. It makes sense as to why the District of Columbia consumes a larger share relative to individual households.
+To add a bit of domain knowledge: Washington, D.C. and its surrounding regions contain the most data centers out of any region in the United States. California is the second region. It makes sense as to why the District of Columbia consumes a larger share relative to individual households.
 
 ### EDA: Aggregate Data
 
 While we have aggregated data based on Univariate and Bivariate Analyses in the sections above, we have not yet shown how to deal with missing values by grouping. Below we will group `CUSTOMERS.AFFECTED` and `TOTAL.CUSTOMERS` based on State using `POSTAL.CODE`
 
+| POSTAL.CODE   |   CUSTOMERS.AFFECTED |   TOTAL.CUSTOMERS |
+|:--------------|---------------------:|------------------:|
+| AK            |              14273   |  273530           |
+| AL            |              94328.8 |       2.40059e+06 |
+| AR            |              47673.8 |       1.53684e+06 |
+| AZ            |              64402.7 |       2.79737e+06 |
+| CA            |             201366   |       1.47257e+07 |
+
 There are two missing values for `CUSTOERS.AFFECTED` in this grouped DataFrame: one in Montana and one in South Dakota. Unfortunately, this means that we cannot tell how many people were affected, as `NaNs` do not correspond to 0 customers affected.
 
-As such, an ideal approach to determining how many people were affected is to look at the **mean percentage of `TOTAL.CUSTOMERS` affected by power outages**, then divide Montana and South Dakotas population by this proportion.
-
-Roughly 4.7% of all customers in the United States are affected by power outages. Not a bad loss compared to the millions of customers. Now we will take the `TOTAL.CUSTOMERS` of Montana and South Dakota and multiply it by the affected_pct.
+As such, an ideal approach to determining how many people were affected is to look at the **mean percentage of `TOTAL.CUSTOMERS` affected by power outages**, then divide Montana and South Dakotas population by this proportion. Roughly 4.7% of all customers in the United States are affected by power outages. Not a bad loss compared to the millions of customers. Now we will take the `TOTAL.CUSTOMERS` of Montana and South Dakota and multiply it by the affected_pct.
 
 # Assessment of Missingness
 
