@@ -42,7 +42,7 @@ For the purposes of our predictive analysis, we will also fill `NaNs` for all of
 
 For example: `DEMAND.LOSS.MW` will be imputed later, as its missingness will be analyzed in a section below.
 
-The first rowd of our dataframe are shown below:
+The first rows of our DataFrame are shown below:
 
 | POSTAL.CODE   |   OBS |   YEAR |   ANOMALY.LEVEL | CLIMATE.CATEGORY   | CAUSE.CATEGORY     |   OUTAGE.DURATION |   DEMAND.LOSS.MW |   CUSTOMERS.AFFECTED |   COM.SALES |   TOTAL.SALES |   RES.PERCEN |   COM.PERCEN |   IND.PERCEN |   TOTAL.CUSTOMERS |   POPULATION |   POPDEN_URBAN |   OVER.1000 |
 |:--------------|------:|-------:|----------------:|:-------------------|:-------------------|------------------:|-----------------:|---------------------:|------------:|--------------:|-------------:|-------------:|-------------:|------------------:|-------------:|---------------:|------------:|
@@ -163,7 +163,17 @@ As such, an ideal approach to determining how many people were affected is to lo
 
 # Assessment of Missingness
 
+### NMAR Analysis
+
 There are a few rows in our DataFrame that are consistently missing values. Let's look at which values those are.
+
+|   RES.PRICE |   COM.PRICE |   IND.PRICE |   TOTAL.PRICE |   RES.SALES |   COM.SALES |   IND.SALES |   TOTAL.SALES |   RES.PERCEN |   COM.PERCEN |   IND.PERCEN |
+|------------:|------------:|------------:|--------------:|------------:|------------:|------------:|--------------:|-------------:|-------------:|-------------:|
+|         nan |         nan |         nan |           nan |         nan |         nan |         nan |           nan |          nan |          nan |          nan |
+|         nan |         nan |         nan |           nan |         nan |         nan |         nan |           nan |          nan |          nan |          nan |
+|         nan |         nan |         nan |           nan |         nan |         nan |         nan |           nan |          nan |          nan |          nan |
+|         nan |         nan |         nan |           nan |         nan |         nan |         nan |           nan |          nan |          nan |          nan |
+|         nan |         nan |         nan |           nan |         nan |         nan |         nan |           nan |          nan |          nan |          nan |
 
 As we can see from the list above, we can see that there is are 11 columns (Excluding `HURRICANE.NAMES`) where the values are always missing: `RES.PRICE`, `COM.PRICE`, `IND.PRICE`, `TOTAL.PRICE`, `RES.SALES`, `COM.SALES`, `IND.SALES`, `TOTAL.SALES`, `RES.PERCENT`, `COM.PERCEN`, and `IND.PERCEN`. Since these are all missing in the same rows in our DataFrame, we can conclude that they are all **Not Missing at Random**. This is because although we can find a slight pattern in missingness based on `YEAR`, we are unable to find a specific pattern for all 22 missing rows. 
 
@@ -171,13 +181,8 @@ There could potentially be factors that attribute to all 11 variables resulting 
 
 ### Missingness Dependency
 
-To determine missingness dependency of `DEMAND.LOSS.MW`, we are going to compare the distributions based on two categories: `YEAR` and `CLIMATE.CATEGORY`.
-
-The first step is to create a `pivot_table` of our DataFrame, whose index is `YEAR` and columns correspond to `MISSING`.
-
-Since our columns are **categorical**, we find the observed Total Variation Distance of this pivot_table as our t-statistic.
-
-Below is a plot showing the distribution of `DEMAND.LOSS.MW` based on `MISSINGNESS`.
+To determine missingness dependency of `DEMAND.LOSS.MW`, we are going to compare the distributions based on two categories: `YEAR` and `CLIMATE.CATEGORY`. \
+The first step is to create a `pivot_table` of our DataFrame, whose index is `YEAR` and columns correspond to `MISSING`. Since our columns are **categorical**, we find the observed Total Variation Distance of this pivot_table as our t-statistic. Below is a plot showing the distribution of `DEMAND.LOSS.MW` based on `MISSINGNESS`.
 
 <iframe
   src="assets/Missingness_1.html"
@@ -207,7 +212,7 @@ As such, we reject the null hypothesis; the distributions of data are likely to 
 Next, we will determine if the distributions of `DEMAND.LOSS.MW` are dependent on `CLIMATE.CATEGORY` when data are missing. Most of the steps are the same as the first attempt, so explanations will be skipped.
 
 **Null Hypothesis**: The distribution of `CLIMATE.CATEGORY` is the same regardless of missing data for `DEMAND.LOSS.MW` \
-**Alternate Hypothesis**: The distributions for missing data are different than the distributions of non-missing data.
+**Alternate Hypothesis**: The distributions for missing data are different than the distributions of non-missing data. Below is a plot showcasing the proportion of climate categories based on demand loss missingness.
 
 <iframe
   src="assets/Missingness_3.html"
@@ -216,6 +221,8 @@ Next, we will determine if the distributions of `DEMAND.LOSS.MW` are dependent o
   frameborder="0"
 ></iframe>
 
+This table resulted in an observed Total Variation Distance of `0.03`. We then simulated permutation of the missingness 500 times. Below we plot the empirical distribution of the TVDs.
+
 <iframe
   src="assets/Missingness_4.html"
   width="800"
@@ -223,7 +230,7 @@ Next, we will determine if the distributions of `DEMAND.LOSS.MW` are dependent o
   frameborder="0"
 ></iframe>
 
-Based on the following hypothesis test, we have observed a TVD of 0.03 with a p-value of .324
+Based on the following hypothesis test, we have observed a TVD of `0.03` with a p-value of `.324`.
 
 We fail to reject the null hypothesis this time; however, this does not mean that the null hypothesis must be true. There is a possibility that the data come from the same distribution, but there may be other factors that we have not observed or discovered that may cause this.
 
