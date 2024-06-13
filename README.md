@@ -7,8 +7,22 @@ A UCSD-DSC80 Project
 
 This report examines a dataset of reported power outages in the United States from the year 2000 to 2016. We will reveal patterns, trends, and the limitations of this dataset as well as produce a predictive model to determine if the duration of a power outage can be classified as 'severe'. This dataset was available as an .xlsx file in Purdue University Laboratory for Advancing Sustainable Critical Infrastructure's website.
 
-**The Hypothesis question we have chosen to answer is**: "Is there a correlation between power outage duration based on climate category?" \
-**The prediction question we have chosen to answer is**: "Can we predict power outage severity (whether an outage lasts more than 1000 minutes) based on customer category?"
+Throughout the scopre of this project, we will answer questions that will guide us closer to the general hypothesis question: What is the correlation between the variables in our dataset and power outage duration? Is there an efficient way to predict the length -or severity- of a power outage based on these variables? The results of these questions can guide regional electric companies to coordinate with local governments to facilitate relief efforts, prioritize severe outage risks, and open up a path to reduce the frequency of outages.
+
+The dataset we will use throughout this project contains 1536 outage observations 56 variables. The variables we are interested in using are described below:
+
+| Column | Description |
+| -------- | ------- |
+|YEAR| Year the outage occurred | 
+|POSTAL.CODE| Postal code of the U.S. State | 
+|ANOMALY.LEVEL| Oceanic El Niño/La Niña Index (OEI) | 
+|CLIMATE.CATEGORY| Climate eisodes throughout the year |
+|CAUSE.CATEGORY| Categories of power outage events| 
+|OUTAGE.DURATION| Outage duration in minutes | 
+|DEMAND.LOSS.MW| Peak demand lost in Megawatts|
+|CUSTOMERS.AFFECTED| Number of customers affected | 
+|COM.SALES| Commercial consumption (in megawatt-hours) | 
+|TOTAL.SALES| Total consumption (in megawatt-hours) | 
 
 # Data Cleaning and Exploratory Data Analysis
 
