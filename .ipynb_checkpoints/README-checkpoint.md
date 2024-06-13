@@ -1,7 +1,7 @@
-# power-outage-severity
+# A Predictive Analysis of U.S. Power Outage Severity
 A UCSD-DSC80 Project
 
-Edgar Guzman
+-Edgar Guzman
 
 # Introduction
 
@@ -29,15 +29,34 @@ We will also impute `DEMAND.LOSS.MW` at a later time, as its missingness will be
 
 We will perform univariate analyses on a few of our variables. First, we will determine the distribution of `OUTAGE.DURATION`
 
+<iframe
+  src="assets/Univariate_1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 Based on the plot above, most of the outages are concentrated at `OUTAGE.DURATION` less than 1000 minutes. There seems to be a large empty space in this plot, but that is because the plot is also showing the outliers; the few outages that lasted loner than 50,000 minutes. \
 The data is non-uniform, which means we will have to perform non-parametric tests. This means that we are unable to perform any Hypothesis test that assumes normality in the population distribution unless we normalized the observations. What if we were to separate them based on climate category?
 
------Plot here
+<iframe
+  src="assets/Univariate_2.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Looking at this plot, we start to see a pattern in the data that we will discuss later. Let's attempt to transform the data distribution. We will perform the following steps:
 * Log-scale `OUTAGE.DURATION`
 * Seperate the distributions based on `CLIMATE.CATEGORY`
 * Normalize each category by probability density.
+
+<iframe
+  src="assets/Univariate_3.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Here we can notice a few trends:
 * The data is still not normally distributed, but it is close enough to normal that we can perform some parametric tests
@@ -48,7 +67,12 @@ Unfortunately, these distributions are not clone enough to normality for a p-val
 
 Next, we will determine if the total number of `CUSTOMERS.AFFECTED` has changed over time
 
------Plot here
+<iframe
+  src="assets/Univariate_4.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Based on the plot above, we can determine that the number of customers gradually increases, peaking in 2012, and slowly declines after that. Prior to imputation, the `YEAR` 2012 had less `CUSTOMERS.AFFECTED` than 2008. 
 
@@ -58,13 +82,33 @@ It is worth mentioning that the number of custmers affected during the year 2016
 
 For the second part of our Exploratory Data Analysis, we will examine if any relationship occurrs between `CUSTOMERS.AFFECTED` and `OUTAGE.DURATION`. Additionally, we will categorize the data points based on `CLIATE.CATEGORY` to determine if outliers are more concentrated within a certain category.
 
+<iframe
+  src="assets/Bivariate_1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 Based on the plot above, The majority of data is clustered between 0 and 500,000 `CUSTOMERS.AFFECTED` and within 0 and 2500 `DEMAND.LOSS.MW`. This distribution is validated by referring back to the univariate distribution of `OUTAGE.DURATION`; plotting the individual counts of `CUSTOMERS.AFFECTED` or `DEMAND.LOSS.MW` will reveal a similarly distributed population as before. 
 
 Next, let's look at the total `COM.SALES` -the total commercial energy sales- categorized by state using `POSTAL.CODE`
 
+<iframe
+  src="assets/Bivariate_2.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 Unfortunately, this plot does not tell us anything valuable that a population plot could not. Instead, let's plot based on `COM.PERCEN`, the total commercial sales as a percentage of total sales based on the respective state.
 
------Plot here
+
+<iframe
+  src="assets/Bivariate_3.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 This plot is very interesting! Why would the District of Columbia have such high commercial energy usage? Looking once again at the data, we can deduce two new pieces of information:
 * For all states: `RES.CUSTOMERS` > `COM.CUSTOMERS` > `IND.CUSTOMERS`
@@ -104,7 +148,12 @@ Since our columns are **categorical**, we find the observed Total Variation Dist
 
 Below is a plot showing the distribution of `DEMAND.LOSS.MW` based on `MISSINGNESS`
 
------Plot here
+<iframe
+  src="assets/Missingness_1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 In order to determine whether our observed TVD follows the population distribution, we will perform the following test:
 
@@ -115,6 +164,13 @@ To simulate population data, we will perform 500 repetitions of shuffling the `M
 
 Our observed TVD had a value of .288, with a pvalue of 0. Below is the plot of the empirical distribution, with the observed_tvd marked as a heavy outlier. 
 
+<iframe
+  src="assets/Missingness_2.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 As such, we reject the null hypothesis; the distributions of data are likely to depend on the `YEAR` column
 
 Next, we will determine if the distributions of `DEMAND.LOSS.MW` are dependent on `CLIMATE.CATEGORY` when data are missing. Most of the steps are the same as the first attempt, so explanations will be skipped.
@@ -122,9 +178,19 @@ Next, we will determine if the distributions of `DEMAND.LOSS.MW` are dependent o
 Null Hypothesis: The distribution of `CLIMATE.CATEGORY` is the same regardless of missing data for `DEMAND.LOSS.MW` \
 Alternate Hypothesis: The distributions for missing data are different than the distributions of non-missing data
 
------Plot here
+<iframe
+  src="assets/Missingness_3.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
------Plot here
+<iframe
+  src="assets/Missingness_4.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Based on the following hypothesis test, we have observed a TVD of 0.03 with a p-value of .324
 
@@ -170,7 +236,12 @@ We observed a test statistic of .945, with a p-value of 0.33. As the pvalue was 
 
 To obtain a plot showing the distributions of Chi-Squared test statistics, we will implement the following code below:
 
------Plot here
+<iframe
+  src="assets/Hypothesis_1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 # Framing a Prediction Problem
 
@@ -227,7 +298,12 @@ After computing the accuracy scores based on the groups, we see a greater differ
 **Test Statistic**: Difference in accuracies based on group. \
 We will run ths test under a 99% condifence interval.
 
------Plot here
+<iframe
+  src="assets/Fairness_1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 It turns out that our observed statistic of `.108` does not deviate significantly from the permutation distribution. As such, we fail to reject our null hypothesis.
 
