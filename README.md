@@ -1,7 +1,7 @@
 # A Predictive Analysis of U.S. Power Outage Severity
-A UCSD-DSC80 Project
-
 -Edgar Guzman
+
+*Originally a final assignment for DSC80 at the University of California, San Diego*
 
 # Introduction
 
